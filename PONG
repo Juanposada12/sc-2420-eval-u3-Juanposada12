@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <stdlib.h>
+#include <time.h>
+
+int score = 0;
+bool showStartButton = true;
+bool game_is_running = true;
+TTF_Font* font;
+SDL_Texture* buttonTextTexture;
+SDL_Color textColor = { 200, 100, 50 };
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+
+typedef struct {
+    float x, y, width, height, vel_x, vel_y;
+} GameObject;
+
+GameObject ball, paddle, button;
+
+SDL_Texture* createTextTexture(const char* text, TTF_Font* font, SDL_Renderer* renderer) {
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, textColor);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+    return textTexture;
+}
+
+bool isMouseClickInButton(int mouseX, int mouseY) {
+    return (mouseX >= button.x && mouseX <= button.x + button.width &&
+            mouseY >= button.y && mouseY <= button.y + button.height);
+}
+
+int initialize_window(void) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) return false;
+    window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_BORDERLESS);
+    if (!window) return false;
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    if (!renderer) return false;
+    if (TTF_Init() == -1) return false;
+    return true;
+}
+
+void setup(void) {
+    ball.width = 15; ball.height = 15; ball.x = 20; ball.y = 20; ball.vel_x = 300; ball.vel_y = 300;
+    paddle.width = 100; paddle.height = 20; paddle.x = 350; paddle.y = 560; paddle.vel_x = 0;
+
+    button.width = 350; button.height = 150; button.x = 225; button.y = 225;
+    buttonTextTexture = createTextTexture("INICIAR JUEGO", font, renderer);
+}
+
+void process_input(void) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) game_is_running = false;
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) game_is_running = false;
+        if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_LEFT) paddle.vel_x = -400;
+            if (event.key.keysym.sym == SDLK_RIGHT) paddle.vel_x = 400;
+        }
+        if (event.type == SDL_KEYUP) {
+            if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT) paddle.vel_x = 0;
+        }
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            if (showStartButton && isMouseClickInButton(mouseX, mouseY)) {
+                showStartButton = false;
+            }
+        }
+    }
+}
+
+void update(void) {
+    ball.x += ball.vel_x * 0.016; // Assume 60 FPS
+    ball.y += ball.vel_y * 0.016;
+    paddle.x += paddle.vel_x * 0.016;
+
+    if (ball.x <= 0 || ball.x + ball.width >= 800) ball.vel_x = -ball.vel_x;
+    if (ball.y < 0) ball.vel_y = -ball.vel_y;
+
+    if (ball.y + ball.height >= paddle.y && ball.x + ball.width >= paddle.x && ball.x <= paddle.x + paddle.width) {
+        ball.vel_y = -ball.vel_y;
+        score += 20;
+    }
+
+    if (paddle.x <= 0) paddle.x = 0;
+    if (paddle.x >= 800 - paddle.width) paddle.x = 800 - paddle.width;
+}
+
+void render(void) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Rect ball_rect = { (int)ball.x, (int)ball.y, (int)ball.width, (int)ball.height };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &ball_rect);
+
+    SDL_Rect paddle_rect = { (int)paddle.x, (int)paddle.y, (int)paddle.width, (int)paddle.height };
+    SDL_RenderFillRect(renderer, &paddle_rect);
+
+    if (showStartButton) {
+        SDL_Rect buttonRect = { (int)button.x, (int)button.y, (int)button.width, (int)button.height };
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &buttonRect);
+        SDL_RenderCopy(renderer, buttonTextTexture, NULL, &buttonRect);
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
+void cleanup(void) {
+    TTF_CloseFont(font);
+    SDL_DestroyTexture(buttonTextTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+int main(int argc, char* args[]) {
+    if (!initialize_window()) return 1;
+    font = TTF_OpenFont("Fonts/val.ttf", 120);
+    setup();
+
+    while (game_is_running) {
+        process_input();
+        if (!showStartButton) update();
+        render();
+    }
+
+    cleanup();
+    return 0;
+}
