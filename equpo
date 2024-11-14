@@ -1,0 +1,140 @@
+#include <iostream>
+#include <vector>
+#include <memory>  // Para usar smart pointers (si preferimos punteros inteligentes)
+
+using namespace std;
+
+// Clase base Personaje
+class Personaje {
+public:
+    Personaje(string nombre, int vida) : nombre(nombre), vida(vida) {}
+
+    virtual ~Personaje() {} // Destructor virtual para asegurar la correcta destrucción de objetos derivados.
+
+    virtual void mostrar_estado() const {
+        cout << "Nombre: " << nombre << ", Vida: " << vida << endl;
+    }
+
+    virtual void crear() const {
+        cout << nombre << " ha sido creado." << endl;
+    }
+
+    virtual void destruir() const {
+        cout << nombre << " ha sido destruido." << endl;
+    }
+
+protected:
+    string nombre;
+    int vida;
+};
+
+// Clase Mago que hereda de Personaje
+class Mago : public Personaje {
+public:
+    Mago(string nombre, int vida, int mana) : Personaje(nombre, vida), mana(mana) {}
+
+    void mostrar_estado() const override {
+        cout << "Nombre: " << nombre << ", Vida: " << vida << ", Mana: " << mana << endl;
+    }
+
+    void crear() const override {
+        cout << nombre << " el Mago ha sido creado con " << vida << " de vida y " << mana << " de mana." << endl;
+    }
+
+    void destruir() const override {
+        cout << nombre << " el Mago ha sido destruido." << endl;
+    }
+
+private:
+    int mana;
+};
+
+// Clase Guerrero que hereda de Personaje
+class Guerrero : public Personaje {
+public:
+    Guerrero(string nombre, int vida, int fuerza) : Personaje(nombre, vida), fuerza(fuerza) {}
+
+    void mostrar_estado() const override {
+        cout << "Nombre: " << nombre << ", Vida: " << vida << ", Fuerza: " << fuerza << endl;
+    }
+
+    void crear() const override {
+        cout << nombre << " el Guerrero ha sido creado con " << vida << " de vida y " << fuerza << " de fuerza." << endl;
+    }
+
+    void destruir() const override {
+        cout << nombre << " el Guerrero ha sido destruido." << endl;
+    }
+
+private:
+    int fuerza;
+};
+
+// Clase Equipo que maneja un conjunto de Personajes
+class Equipo {
+public:
+    // Función para agregar un personaje al equipo
+    void agregar_personaje(Personaje* personaje) {
+        personajes.push_back(personaje);
+    }
+
+    // Función para mostrar el estado de todo el equipo
+    void mostrar_estado_equipo() const {
+        cout << "Estado del Equipo:" << endl;
+        for (const auto& personaje : personajes) {
+            personaje->mostrar_estado();  // Llamamos a mostrar_estado() de cada personaje
+        }
+    }
+
+    // Destructor: Liberamos la memoria de los objetos Personaje
+    ~Equipo() {
+        for (auto& personaje : personajes) {
+            delete personaje;  // Liberamos la memoria de cada personaje en el equipo
+        }
+        personajes.clear();  // Limpiamos el vector
+    }
+
+private:
+    vector<Personaje*> personajes;  // Vector para almacenar punteros a Personaje
+};
+
+// Función principal
+int main() {
+    // Crear instancias de personajes
+    Mago* mago1 = new Mago("Gandalf", 100, 50);
+    Guerrero* guerrero1 = new Guerrero("Conan", 150, 80);
+    Mago* mago2 = new Mago("Merlin", 120, 70);
+    Guerrero* guerrero2 = new Guerrero("Hercules", 180, 90);
+
+    // Crear un equipo
+    Equipo equipo;
+
+    // Agregar personajes al equipo
+    equipo.agregar_personaje(mago1);
+    equipo.agregar_personaje(guerrero1);
+    equipo.agregar_personaje(mago2);
+    equipo.agregar_personaje(guerrero2);
+
+    // Mostrar el estado de todo el equipo
+    equipo.mostrar_estado_equipo();
+
+    // El destructor de Equipo se encargará de liberar la memoria de los personajes cuando termine el programa
+    return 0;
+}
+//Clase Personaje:
+
+//Esta clase es la base de los personajes, con los atributos comunes nombre y vida.
+//El método mostrar_estado() es virtual para que las clases derivadas puedan sobrescribirlo con un comportamiento más específico.
+//Clases Mago y Guerrero:
+
+//Ambas heredan de Personaje y añaden atributos específicos (mana y fuerza, respectivamente).
+//Sobrescriben el método mostrar_estado() para mostrar también los atributos específicos.
+//lase Equipo:
+
+//La clase Equipo contiene un vector de punteros a Personaje. Utilizamos punteros a Personaje para que se puedan almacenar objetos de cualquier clase derivada (como Mago o Guerrero).
+//La función agregar_personaje() agrega un personaje al equipo.
+//La función mostrar_estado_equipo() recorre el vector y llama a mostrar_estado() para cada personaje, mostrando el estado de todo el equipo.
+//El destructor de Equipo se encarga de liberar la memoria de los personajes. Usamos delete para cada puntero a Personaje almacenado en el vector y luego limpiamos el vector.
+//Manejo de memoria:
+
+//Los personajes son creados dinámicamente con new en el main(), y luego el destructor de Equipo los libera correctamente con delete.
