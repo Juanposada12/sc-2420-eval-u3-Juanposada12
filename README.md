@@ -42,3 +42,33 @@ Temas que aún me generan dudas:
 •	Aunque el manejo básico de punteros y memoria en C++ es claro, siempre es un tema complejo, especialmente cuando se usan punteros compartidos o cuando se manejan objetos grandes o complejos. Los punteros inteligentes son una buena solución, pero entender en profundidad su funcionamiento y cuándo usar cada tipo (unique_ptr, shared_ptr, weak_ptr) puede ser un tema de estudio continuo.
 •	El uso de interfaces y clases abstractas en lenguajes que no cuentan con interfaces explícitas (como C++) también es algo que quiero estudiar más profundamente, para entender cómo diseñar sistemas que aprovechen estos conceptos de manera eficiente.
 
+![image](https://github.com/user-attachments/assets/7a58e167-5917-4b08-a2c3-d52ba5dc88c4)
+
+Informe de Diseño
+Objetivo del Diseño
+El objetivo principal del diseño orientado a objetos para este juego es mejorar la modularidad, escalabilidad y reutilización del código. La refactorización del código hacia un enfoque orientado a objetos permite organizar las entidades del juego (como el jugador, enemigos y proyectiles) de manera más estructurada y controlada, utilizando principios de la Programación Orientada a Objetos (POO), como la herencia, la composición y la encapsulación.
+
+Estructura de Clases y Herencia
+Clase Base Entity: La clase Entity actúa como la clase base común para todas las entidades del juego. Esta clase incluye atributos comunes como posición, tamaño, velocidad y textura, y métodos genéricos como update() y render(), que son utilizados por todas las entidades para actualizar su estado y renderizarse en la pantalla. El uso de esta clase base permite que las entidades compartan estos atributos y comportamientos, evitando la duplicación de código.
+
+Clases Derivadas: Player, Enemy, Bullet:
+
+Player: Hereda de Entity y añade atributos específicos, como score y health. También tiene métodos específicos para mover al jugador y disparar proyectiles.
+Enemy: Hereda de Entity y añade atributos como health y active, que permiten controlar el estado del enemigo. El método move está especializado en el movimiento específico de los enemigos.
+Bullet: Similar a Enemy, hereda de Entity, pero su comportamiento está enfocado en el movimiento hacia arriba y la verificación de si el proyectil debe ser eliminado de la pantalla.
+Encapsulación y Abstracción
+En el diseño, se ha seguido el principio de encapsulación, manteniendo los atributos de las entidades privados y permitiendo su acceso solo a través de los métodos proporcionados. Esto garantiza que el comportamiento interno de las entidades esté bien controlado y no se modifique directamente desde fuera de la clase.
+
+Relaciones entre Clases
+Composición: La clase Game tiene una relación de composición con las clases Player, Enemy y Bullet. Esto significa que la clase Game crea y gestiona las instancias de estas entidades durante el ciclo de vida del juego. Cuando el juego termina, estas instancias se destruyen adecuadamente.
+
+Herencia: Las clases Player, Enemy y Bullet heredan de Entity, lo que les permite compartir comportamientos comunes como el update() y render(). Esto reduce la duplicación de código y permite que se agreguen nuevas entidades fácilmente, solo implementando su comportamiento específico.
+
+Mejoras en la Modularización
+El código refactorizado es ahora más modular. Cada clase se encarga de una responsabilidad específica, lo que facilita la extensión del juego en el futuro. Por ejemplo, se pueden agregar nuevos tipos de enemigos, nuevos proyectiles o nuevos power-ups sin necesidad de modificar el código existente en gran medida. Cada nueva entidad se puede implementar creando una nueva clase que herede de Entity y defina su comportamiento específico.
+
+Escalabilidad
+Este diseño permite una fácil escalabilidad. Si se desea agregar más entidades o cambiar la lógica del juego, como agregar nuevos niveles, enemigos o mecánicas de juego, solo es necesario modificar o extender las clases correspondientes sin afectar el resto del código. Además, el manejo de las entradas y la actualización del estado del juego están claramente separadas, lo que permite agregar nuevas características sin complicar el flujo general del juego.
+
+Conclusión
+Este diseño orientado a objetos mejora significativamente la organización del código, permitiendo una mayor modularidad, reutilización y escalabilidad. Utilizar herencia para las entidades del juego y composición para la gestión de las instancias en el ciclo del juego facilita tanto la extensión como el mantenimiento del código, asegurando una arquitectura limpia y bien estructurada.
