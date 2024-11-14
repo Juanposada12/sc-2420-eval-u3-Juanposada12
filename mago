@@ -1,0 +1,55 @@
+// Clase base Personaje
+class Personaje:
+    def __init__(self, nombre, vida):
+        self.nombre = nombre
+        self.vida = vida
+    
+    def mostrar_estado(self):
+        return f"Nombre: {self.nombre}, Vida: {self.vida}"
+
+    def crear(self):
+        print(f"{self.nombre} ha sido creado.")
+    
+    def destruir(self):
+        print(f"{self.nombre} ha sido destruido.")
+
+//Clase Mago que hereda de Personaje
+class Mago(Personaje):
+    def __init__(self, nombre, vida, mana):
+        //Llamada al constructor de la clase base (Personaje)
+        super().__init__(nombre, vida)
+        self.mana = mana
+    
+    // Sobreescribir la función mostrar_estado para incluir el mana
+    def mostrar_estado(self):
+        return f"Nombre: {self.nombre}, Vida: {self.vida}, Mana: {self.mana}"
+
+    //Función para crear un Mago
+    def crear(self):
+        print(f"{self.nombre} el Mago ha sido creado con {self.vida} de vida y {self.mana} de mana.")
+    
+    # Función para destruir un Mago
+    def destruir(self):
+        print(f"{self.nombre} el Mago ha sido destruido.")
+
+//Ejemplo de uso
+mago = Mago("Gandalf", 100, 50)
+
+//Crear un mago
+mago.crear()
+
+//Mostrar el estado del mago
+print(mago.mostrar_estado())
+
+//Destruir el mago
+mago.destruir()
+Clase Personaje:
+
+//Esta clase tiene los atributos básicos como nombre y vida, y un método mostrar_estado que imprime el estado básico del personaje.
+//Las funciones crear y destruir están implementadas para gestionar la creación y destrucción del personaje.
+//Clase Mago:
+
+//La clase Mago hereda de Personaje, por lo que toma los atributos nombre y vida de la clase base.
+//En el constructor de Mago, se añade un nuevo atributo llamado mana.
+//La función mostrar_estado es sobreescrita para incluir también el atributo mana junto con nombre y vida.
+//Las funciones crear y destruir se sobreescriben para proporcionar un mensaje más específico sobre la creación y destrucción del Mago, que también incluye la cantidad de mana.
