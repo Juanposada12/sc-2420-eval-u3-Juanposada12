@@ -1,55 +1,95 @@
+#include <iostream>
+#include <vector>
+#include <memory>  // Para usar smart pointers (si es necesario)
+
+using namespace std;
+
 // Clase base Personaje
-class Personaje:
-    def __init__(self, nombre, vida):
-        self.nombre = nombre
-        self.vida = vida
-    
-    def mostrar_estado(self):
-        return f"Nombre: {self.nombre}, Vida: {self.vida}"
+class Personaje {
+public:
+    Personaje(string nombre, int vida) : nombre(nombre), vida(vida) {}
 
-    def crear(self):
-        print(f"{self.nombre} ha sido creado.")
-    
-    def destruir(self):
-        print(f"{self.nombre} ha sido destruido.")
+    virtual ~Personaje() {} // Destructor virtual para asegurar el polimorfismo correcto.
 
-//Clase Mago que hereda de Personaje
-class Mago(Personaje):
-    def __init__(self, nombre, vida, mana):
-        //Llamada al constructor de la clase base (Personaje)
-        super().__init__(nombre, vida)
-        self.mana = mana
-    
-    // Sobreescribir la función mostrar_estado para incluir el mana
-    def mostrar_estado(self):
-        return f"Nombre: {self.nombre}, Vida: {self.vida}, Mana: {self.mana}"
+    virtual void atacar() const {
+        cout << nombre << " ataca de manera genérica." << endl;
+    }
 
-    //Función para crear un Mago
-    def crear(self):
-        print(f"{self.nombre} el Mago ha sido creado con {self.vida} de vida y {self.mana} de mana.")
-    
-    # Función para destruir un Mago
-    def destruir(self):
-        print(f"{self.nombre} el Mago ha sido destruido.")
+    void mostrar_estado() const {
+        cout << "Nombre: " << nombre << ", Vida: " << vida << endl;
+    }
 
-//Ejemplo de uso
-mago = Mago("Gandalf", 100, 50)
+protected:
+    string nombre;
+    int vida;
+};
 
-//Crear un mago
-mago.crear()
+// Clase Guerrero que hereda de Personaje
+class Guerrero : public Personaje {
+public:
+    Guerrero(string nombre, int vida, int fuerza) : Personaje(nombre, vida), fuerza(fuerza) {}
 
-//Mostrar el estado del mago
-print(mago.mostrar_estado())
+    void atacar() const override {
+        cout << nombre << " el Guerrero ataca con fuerza de " << fuerza << "." << endl;
+    }
 
-//Destruir el mago
-mago.destruir()
+private:
+    int fuerza;
+};
+
+// Clase Mago que hereda de Personaje
+class Mago : public Personaje {
+public:
+    Mago(string nombre, int vida, int mana) : Personaje(nombre, vida), mana(mana) {}
+
+    void atacar() const override {
+        cout << nombre << " el Mago lanza un hechizo con " << mana << " de mana." << endl;
+    }
+
+private:
+    int mana;
+};
+
+// Función para crear y manejar un arreglo de personajes
+int main() {
+    // Crear un arreglo de punteros a Personaje usando un vector (también podrían usarse arreglos tradicionales)
+    vector<unique_ptr<Personaje>> personajes;
+
+    // Añadir personajes al arreglo
+    personajes.push_back(make_unique<Guerrero>("Conan", 150, 80));
+    personajes.push_back(make_unique<Mago>("Gandalf", 100, 50));
+    personajes.push_back(make_unique<Guerrero>("Hercules", 180, 90));
+    personajes.push_back(make_unique<Mago>("Merlin", 120, 70));
+
+    // Recorrer el arreglo de personajes y llamar a atacar para cada uno
+    for (const auto& personaje : personajes) {
+        personaje->atacar(); // Llama al método atacar correspondiente según el tipo de objeto
+    }
+
+    return 0;
+}
+
+ // 
 Clase Personaje:
 
-//Esta clase tiene los atributos básicos como nombre y vida, y un método mostrar_estado que imprime el estado básico del personaje.
-//Las funciones crear y destruir están implementadas para gestionar la creación y destrucción del personaje.
-//Clase Mago:
+Atributos: nombre y vida, que son comunes para todos los personajes.
+Método atacar(): Es virtual, para que las clases derivadas puedan sobreescribirla.
+Método mostrar_estado(): Para mostrar el estado básico de un personaje (nombre y vida).
+Destructor virtual: Es importante para la gestión correcta de la memoria cuando usamos punteros polimórficos (en este caso, en el vector de Personaje*).
+Clase Guerrero:
 
-//La clase Mago hereda de Personaje, por lo que toma los atributos nombre y vida de la clase base.
-//En el constructor de Mago, se añade un nuevo atributo llamado mana.
-//La función mostrar_estado es sobreescrita para incluir también el atributo mana junto con nombre y vida.
-//Las funciones crear y destruir se sobreescriben para proporcionar un mensaje más específico sobre la creación y destrucción del Mago, que también incluye la cantidad de mana.
+Hereda de Personaje y agrega un atributo fuerza.
+Sobrescribe la función atacar() para imprimir un mensaje específico de cómo ataca el Guerrero usando su fuerza.
+Clase Mago:
+
+Hereda de Personaje y agrega un atributo mana.
+Sobrescribe la función atacar() para imprimir un mensaje específico de cómo el Mago lanza un hechizo usando su mana.
+Arreglo de Personajes:
+
+Usamos un vector de punteros a Personaje (en este caso, con unique_ptr para manejar automáticamente la memoria).
+Añadimos instancias de Guerrero y Mago al vector.
+Luego, recorremos el vector y llamamos al método atacar() de cada personaje. Gracias al polimorfismo, se invoca la versión correcta de atacar() dependiendo del tipo real del objeto (si es Guerrero o Mago).
+Detalles importantes:
+Polimorfismo: Al declarar atacar() como virtual en la clase base, el programa puede llamar a la versión correcta de atacar() en función del tipo real del objeto (aunque sea un puntero de tipo Personaje*).
+Punteros inteligentes (unique_ptr): Se usan para manejar la memoria de forma segura y evitar fugas de memoria. En C++ moderno, se recomienda el uso de punteros inteligentes para la gestión automática de la memoria.
+// 
